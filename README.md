@@ -96,7 +96,8 @@ which usually means the NFS mount failed.
    and `renamed` filters.
 3. Press **Organise**. Within 24 hours of a dry run it applies exactly the previewed
    plan, re-checking each file first.
-4. Keep the daily schedule off (Settings) until a few manual runs look right.
+4. The daily schedule starts switched off. Switch it on in Settings once a few
+   manual runs look right.
 
 Test against a copy of a few hundred photos before pointing it at the real library.
 

@@ -73,6 +73,13 @@ def test_folder_layout_and_date_order_are_saved(app):
     assert html.index('value="CreateDate"') < html.index('value="DateTimeOriginal"')
 
 
+def test_schedule_starts_switched_off(db):
+    from app.services import settings
+
+    with db.session() as s:
+        assert settings.load(s).schedule_enabled is False
+
+
 def test_old_modified_date_setting_carries_over(db):
     from app.services import settings
 

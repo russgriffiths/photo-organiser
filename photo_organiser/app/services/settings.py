@@ -11,7 +11,7 @@ from app.services.metadata import DATE_SOURCES, DEFAULT_DATE_SOURCES
 FOLDER_LAYOUTS = {"year": "YYYY", "month": "YYYY/MM", "day": "YYYY/MM/DD"}
 
 DEFAULTS = {
-    "schedule_enabled": "1",
+    "schedule_enabled": "0",  # off until a few manual runs look right
     "schedule_time": "02:00",
     "duplicate_handling": "move",  # move | skip
     "folder_layout": "day",  # a key of FOLDER_LAYOUTS

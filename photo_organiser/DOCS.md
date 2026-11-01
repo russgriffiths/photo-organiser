@@ -28,8 +28,8 @@ the Log tab says which. That usually means the network storage isn't connected.
   each file first. Otherwise it scans the Inbox and organises in one go.
 - **Undo Last Run** moves that run's files back. A file is skipped if it was changed
   or moved since.
-- The daily schedule (02:00 by default) is set on the Settings page. Leave it off
-  until a few manual runs look right.
+- The daily schedule (02:00 by default) starts switched off. Switch it on in
+  Settings once a few manual runs look right.
 
 ## Settings page
 
