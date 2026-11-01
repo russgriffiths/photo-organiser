@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% from "_macros.html" import post_button, run_label %}
+{% block title %}Run {{ run.run_id }} · Photo Organiser{% endblock %}
+{% block content %}
+<h1>{{ run_label(run) }} · {{ run.started_at | dt }}</h1>
+<p>
+  {{ run.status }} · {{ run.trigger }} · scanned {{ run.files_scanned }} · moved {{ run.files_moved }} ·
+  duplicates {{ run.duplicates }} · rejected {{ run.rejected }} · errors {{ run.errors }}
+</p>
+{% if run.message %}<p class="error-text">{{ run.message }}</p>{% endif %}
+{% if can_undo %}{{ post_button('dashboard.undo', 'Undo this run', confirm='Undo this run?', fields={'run_id': run.run_id}) }}{% endif %}
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Action</th><th>From</th><th>To</th><th>Date source</th><th>Status</th></tr></thead>
+  <tbody>
+  {% for r in rows %}
+    <tr class="status-{{ r.status }}">
+      <td>{{ r.action }}</td>
+      <td>{{ r.old_path }}</td>
+      <td>{{ r.new_path or '—' }}</td>
+      <td>{{ r.date_source or '—' }}</td>
+      <td>{{ r.status }}{% if r.error %}<br><span class="muted">{{ r.error }}</span>{% endif %}</td>
+    </tr>
+  {% else %}
+    <tr><td colspan="5" class="muted">No files in this run.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

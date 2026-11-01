@@ -1,0 +1,8 @@
+data/
+tests/
+.venv/
+**/__pycache__/
+.pytest_cache/
+.deps/
+test-photos/
+test-data/

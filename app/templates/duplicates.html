@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Duplicates · Photo Organiser{% endblock %}
+{% block content %}
+<h1>Duplicate Review</h1>
+<p class="muted">Exact copies (same SHA-256) of photos already in the library. Newest first.</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Duplicate</th><th>Matches</th><th>Size</th><th>Date</th><th></th></tr></thead>
+  <tbody>
+  {% for r in rows %}
+    <tr>
+      <td>{{ r.new_path }}<br><span class="muted">from {{ r.old_path }}</span></td>
+      <td>{{ r.matched_path }}</td>
+      <td>{{ '{:,.1f}'.format((r.size or 0) / 1048576) }} MB</td>
+      <td>{{ r.photo_date | dt }}</td>
+      <td>
+        <form method="post" action="{{ url_for('duplicates.restore', row_id=r.id) }}" class="inline"
+              onsubmit="return confirm('Move this photo back to the Inbox?')">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button>Move back to Inbox</button>
+        </form>
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="5" class="muted">No duplicates.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% if rows | length == limit %}<p class="muted">Showing the latest {{ limit }}.</p>{% endif %}
+{% endblock %}

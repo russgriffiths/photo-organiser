@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Logs · Photo Organiser{% endblock %}
+{% block content %}
+<h1>Logs</h1>
+<nav class="filters">
+  {% for l in levels %}
+    <a href="{{ url_for('logs.index', level=l) }}" class="{{ 'active' if l == level }}">{{ l | lower }}</a>
+  {% endfor %}
+  <a href="{{ url_for('logs.download') }}">download</a>
+</nav>
+<pre class="log">{% for line in lines %}{{ line }}{% else %}No log lines.{% endfor %}</pre>
+{% endblock %}

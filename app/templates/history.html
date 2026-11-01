@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% from "_macros.html" import post_button, run_label %}
+{% block title %}History · Photo Organiser{% endblock %}
+{% block content %}
+<h1>Processing History</h1>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Started</th><th>Run</th><th>Trigger</th><th>Status</th><th>Scanned</th><th>Moved</th><th>Duplicates</th><th>Rejected</th><th>Errors</th><th>Duration</th><th></th></tr></thead>
+  <tbody>
+  {% for r in runs %}
+    <tr>
+      <td><a href="{{ url_for('history.detail', run_id=r.run_id) }}">{{ r.started_at | dt }}</a></td>
+      <td>{{ run_label(r) }}{% if r.undoes_run_id %}<br><span class="muted">of {{ r.undoes_run_id }}</span>{% endif %}</td>
+      <td>{{ r.trigger }}</td>
+      <td>{{ r.status }}</td>
+      <td>{{ r.files_scanned }}</td>
+      <td>{{ r.files_moved }}</td>
+      <td>{{ r.duplicates }}</td>
+      <td>{{ r.rejected }}</td>
+      <td>{{ r.errors }}</td>
+      <td>{{ r.duration_seconds ~ ' s' if r.duration_seconds is not none else '—' }}</td>
+      <td>{% if r.run_id in undoable %}{{ post_button('dashboard.undo', 'Undo', confirm='Undo this run?', fields={'run_id': r.run_id}) }}{% endif %}</td>
+    </tr>
+  {% else %}
+    <tr><td colspan="11" class="muted">No runs yet.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

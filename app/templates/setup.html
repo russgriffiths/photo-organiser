@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Set a password · Photo Organiser{% endblock %}
+{% block content %}
+<section class="card narrow">
+  <h1>Set a password</h1>
+  <p>Anyone on your network will need this password to use the organiser.</p>
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>Password <input type="password" name="password" required minlength="8" autofocus></label>
+    <label>Confirm password <input type="password" name="confirm" required minlength="8"></label>
+    <button class="primary">Save password</button>
+  </form>
+</section>
+{% endblock %}

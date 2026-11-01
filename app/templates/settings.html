@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% from "_macros.html" import post_button %}
+{% block title %}Settings · Photo Organiser{% endblock %}
+{% block content %}
+<h1>Settings</h1>
+<form method="post" class="card">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <h2>Schedule</h2>
+  <label class="check"><input type="checkbox" name="schedule_enabled" {{ 'checked' if s.schedule_enabled }}> Organise automatically every day</label>
+  <label>Time <input type="time" name="schedule_time" value="{{ s.schedule_time }}" required></label>
+
+  <h2>Folder structure</h2>
+  <label>Organise into
+    <select name="folder_layout">
+      {% for key, pattern in layouts.items() %}
+      <option value="{{ key }}" {{ 'selected' if s.folder_layout == key }}>{{ {'year': 'Year', 'month': 'Month', 'day': 'Day'}[key] }} folders: Organised/{{ pattern }}/</option>
+      {% endfor %}
+    </select>
+  </label>
+  <p class="muted">Applies to photos organised from now on. Photos already in Organised stay where they are.</p>
+
+  <h2>Finding the date</h2>
+  <p class="muted">Tried from the top down; the first one that gives a valid date wins. Untick a source to never use it.
+    Photos with no date from any ticked source go to Rejected/Undated.</p>
+  <ol class="sortable" id="date-sources">
+    {% for key, label, ticked in source_rows %}
+    <li>
+      <label class="check"><input type="checkbox" name="date_sources" value="{{ key }}" {{ 'checked' if ticked }}> {{ label }}</label>
+      <span class="move">
+        <button type="button" data-move="up" aria-label="Move up">▲</button>
+        <button type="button" data-move="down" aria-label="Move down">▼</button>
+      </span>
+    </li>
+    {% endfor %}
+  </ol>
+
+  <h2>Rules</h2>
+  <label>Duplicates
+    <select name="duplicate_handling">
+      <option value="move" {{ 'selected' if s.duplicate_handling == 'move' }}>Move to Duplicates</option>
+      <option value="skip" {{ 'selected' if s.duplicate_handling == 'skip' }}>Leave in Inbox</option>
+    </select>
+  </label>
+  <label>Wait before picking up new files (minutes)
+    <input type="number" name="stable_minutes" min="0" max="1440" value="{{ s.stable_minutes }}"></label>
+
+  {% if password_required %}
+  <h2>Change password</h2>
+  <label>Current password <input type="password" name="current_password" autocomplete="current-password"></label>
+  <label>New password <input type="password" name="new_password" minlength="8" autocomplete="new-password"></label>
+  {% endif %}
+
+  <button class="primary">Save settings</button>
+</form>
+
+<section class="card">
+  <h2>Folders</h2>
+  <p class="muted">{% if cfg.ha_addon %}Set the photos path on the app's Configuration tab in Home Assistant.{% else %}Set with environment variables in docker-compose.yml.{% endif %}</p>
+  <dl>
+    <dt>Inbox</dt><dd>{{ cfg.inbox }}</dd>
+    <dt>Organised</dt><dd>{{ cfg.organised }}</dd>
+    <dt>Duplicates</dt><dd>{{ cfg.duplicates }}</dd>
+    <dt>Rejected</dt><dd>{{ cfg.rejected }}</dd>
+  </dl>
+  <h2>Library index</h2>
+  <p class="muted">Lists every file in Organised, Duplicates and Rejected. Runs weekly on Sundays at 03:00.</p>
+  {{ post_button('dashboard.rebuild_index', 'Rebuild index now') }}
+</section>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Log in · Photo Organiser{% endblock %}
+{% block content %}
+<section class="card narrow">
+  <h1>Photo Organiser</h1>
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>Password <input type="password" name="password" required autofocus></label>
+    <button class="primary">Log in</button>
+  </form>
+</section>
+{% endblock %}

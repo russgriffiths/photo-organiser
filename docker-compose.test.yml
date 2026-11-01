@@ -1,0 +1,10 @@
+# Test run against a local folder instead of the NAS:
+#   docker compose -f docker-compose.yml -f docker-compose.test.yml up -d --build
+# Put copies of sample photos in ./test-photos/Inbox first (see README).
+services:
+  organiser:
+    # The local folder belongs to you, not the NAS service account.
+    user: "${UID:-1000}:${GID:-1000}"
+    volumes:
+      - ./test-photos:/photos
+      - ./test-data:/data

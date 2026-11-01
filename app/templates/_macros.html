@@ -1,0 +1,12 @@
+{% macro post_button(endpoint, label, confirm=None, cls='', fields={}) -%}
+<form method="post" action="{{ url_for(endpoint) }}" class="inline"
+      {% if confirm %}onsubmit="return confirm('{{ confirm }}')"{% endif %}>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% for name, value in fields.items() %}<input type="hidden" name="{{ name }}" value="{{ value }}">{% endfor %}
+  <button class="{{ cls }}">{{ label }}</button>
+</form>
+{%- endmacro %}
+
+{% macro run_label(run) -%}
+{{ run.kind | capitalize }}{% if run.dry_run %} (dry run){% endif %}
+{%- endmacro %}

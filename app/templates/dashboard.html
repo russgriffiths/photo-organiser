@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% from "_macros.html" import post_button %}
+{% block content %}
+<h1>Dashboard</h1>
+
+{% if never_indexed %}
+<div class="flash warning">
+  The library hasn't been indexed yet, so duplicates already in Organised won't be detected.
+  {{ post_button('dashboard.rebuild_index', 'Index library now') }}
+</div>
+{% endif %}
+
+<section class="stats">
+  <div class="stat"><span class="num">{{ stats.inbox if stats.inbox is not none else '—' }}</span><span>Inbox photos</span></div>
+  <div class="stat"><span class="num">{{ '{:,}'.format(stats.organised) }}</span><span>Organised photos</span></div>
+  <div class="stat"><span class="num">{{ '{:,}'.format(stats.duplicates) }}</span><span>Duplicates</span></div>
+  <div class="stat"><span class="num">{{ '{:,}'.format(stats.rejected) }}</span><span>Rejected</span></div>
+</section>
+
+<section class="card" id="progress" data-status-url="{{ url_for('dashboard.status') }}" hidden>
+  <h2>Run in progress</h2>
+  <p id="progress-text">Starting…</p>
+  <progress id="progress-bar" max="1" value="0"></progress>
+  {{ post_button('dashboard.cancel', 'Cancel') }}
+</section>
+
+<section class="card">
+  <h2>Last run</h2>
+  {% if last_run %}
+    <p>
+      <a href="{{ url_for('history.detail', run_id=last_run.run_id) }}">{{ last_run.started_at | dt }}</a>
+      · {{ 'Dry run' if last_run.dry_run else 'Organise' }} · {{ last_run.status }}
+    </p>
+    <p class="muted">
+      {{ 'Would move' if last_run.dry_run else 'Moved' }} {{ last_run.files_moved }} ·
+      duplicates {{ last_run.duplicates }} · rejected {{ last_run.rejected }} · errors {{ last_run.errors }}
+    </p>
+    {% if last_run.message %}<p class="error-text">{{ last_run.message }}</p>{% endif %}
+  {% else %}
+    <p class="muted">No runs yet.</p>
+  {% endif %}
+  {% if next_run %}<p class="muted">Next scheduled run: {{ next_run | dt }}</p>{% endif %}
+</section>
+
+<section class="actions">
+  {{ post_button('dashboard.dry_run', 'Dry Run', cls='primary') }}
+  {% if preview %}
+    {{ post_button('dashboard.organise', 'Organise', confirm='Apply the previewed moves (' ~ (preview.files_moved + preview.duplicates + preview.rejected) ~ ' photos)?') }}
+  {% else %}
+    {{ post_button('dashboard.organise', 'Organise', confirm='No recent preview. Scan the Inbox and organise now?') }}
+  {% endif %}
+  {% if undoable %}
+    {{ post_button('dashboard.undo', 'Undo Last Run', confirm='Move every file from the run of ' ~ (undoable.started_at | dt) ~ ' back?', fields={'run_id': undoable.run_id}) }}
+  {% endif %}
+</section>
+{% if preview %}
+<p class="muted">Organise will apply the <a href="{{ url_for('preview.index') }}">preview from {{ preview.started_at | dt }}</a>.</p>
+{% endif %}
+{% endblock %}

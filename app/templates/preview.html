@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% from "_macros.html" import post_button %}
+{% block title %}Preview · Photo Organiser{% endblock %}
+{% block content %}
+<h1>Dry Run Preview</h1>
+{% if not run %}
+  <p class="muted">No dry run yet.</p>
+  {{ post_button('dashboard.dry_run', 'Dry Run', cls='primary') }}
+{% else %}
+  <p>
+    Dry run of {{ run.started_at | dt }} · {{ run.status }} ·
+    move {{ run.files_moved }} · duplicates {{ run.duplicates }} · rejected {{ run.rejected }}
+  </p>
+  {% if can_apply %}
+    {{ post_button('dashboard.organise', 'Organise these files', cls='primary', confirm='Apply these moves?') }}
+  {% else %}
+    <p class="muted">This preview is over 24 hours old or has already been applied. Run a new dry run to organise.</p>
+  {% endif %}
+
+  <nav class="filters">
+    {% for f in filters %}
+      <a href="{{ url_for('preview.index', filter=f) }}" class="{{ 'active' if f == selected }}">{{ {'low': 'low confidence'}.get(f, f) }}</a>
+    {% endfor %}
+  </nav>
+
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>File</th><th>Current</th><th>Destination</th><th>Date</th><th>Source</th><th>Action</th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr class="action-{{ r.action }}">
+        <td>{{ r.old_path.rsplit('/', 1)[-1] }}
+          {% if companions.get(r.set_key) %}<span class="muted">+ {{ companions[r.set_key] | join(' ') }}</span>{% endif %}</td>
+        <td>{{ r.old_path.rsplit('/', 1)[0] }}/</td>
+        <td>{{ r.new_path or '—' }}</td>
+        <td>{{ r.photo_date | dt }}</td>
+        <td>{{ r.date_source or '—' }}{% if r.date_source == 'mtime' %} <span class="badge">low</span>{% endif %}</td>
+        <td>{{ r.action }}{% if r.error %}<br><span class="muted">{{ r.error }}</span>{% endif %}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="6" class="muted">Nothing to show.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% if total > limit %}<p class="muted">Showing {{ limit }} of {{ total }}.</p>{% endif %}
+{% endif %}
+{% endblock %}
