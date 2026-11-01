@@ -1,7 +1,8 @@
-# Home Assistant add-on definition. Ignored by the standalone Docker Compose setup.
+# Home Assistant app definition. Ignored by the standalone Docker Compose setup.
 name: Photo Organiser
 version: "0.2.0"
 slug: photo_organiser
+url: https://github.com/russgriffiths/photo-organiser
 description: Sorts NAS photos into date folders by capture date, with preview, duplicate detection and undo.
 arch:
   - aarch64

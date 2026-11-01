@@ -1,6 +1,6 @@
 services:
   organiser:
-    build: .
+    build: ./photo_organiser
     image: photo-organiser:latest
     restart: unless-stopped
     # UID:GID of the photo-organiser user on the NAS. Check in DSM and replace.

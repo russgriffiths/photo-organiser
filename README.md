@@ -11,27 +11,29 @@ Design: [Photo Organiser — Architecture Design](https://claude.ai/artifact/Tmq
 ## Layout
 
 ```text
-app/
-  config.py         environment settings (paths, secret key)
-  models/           runs, move_history, file_index, settings
-  services/
-    scanner.py      walks Inbox, groups photo + companions (MOV, AAE, XMP, RAW+JPEG)
-    metadata.py     ExifTool reader + date rules
-    planner.py      decides move / duplicate / reject / skip; touches no files
-    mover.py        applies a plan; the only code that moves files in
-    undo.py         moves a run's files back
-    index.py        file_index cache of the library, hashes on demand
-    history.py      writes plans to move_history, reloads a dry run's plan
-  jobs/
-    runner.py       one run at a time, in a background thread
-    scheduler.py    daily organise, weekly index, Inbox count every 15 min
-  routes/           one blueprint per page
-tests/              pytest; uses a fake metadata reader, no ExifTool needed
+repository.yaml       makes this repository installable from Home Assistant
+photo_organiser/      the app: config.yaml, Dockerfile, DOCS.md, requirements.txt
+  app/
+    config.py         environment settings (paths, secret key)
+    models/           runs, move_history, file_index, settings
+    services/
+      scanner.py      walks Inbox, groups photo + companions (MOV, AAE, XMP, RAW+JPEG)
+      metadata.py     ExifTool reader + date rules
+      planner.py      decides move / duplicate / reject / skip; touches no files
+      mover.py        applies a plan; the only code that moves files in
+      undo.py         moves a run's files back
+      index.py        file_index cache of the library, hashes on demand
+      history.py      writes plans to move_history, reloads a dry run's plan
+    jobs/
+      runner.py       one run at a time, in a background thread
+      scheduler.py    daily organise, weekly index, Inbox count every 15 min
+    routes/           one blueprint per page
+tests/                pytest; uses a fake metadata reader, no ExifTool needed
 ```
 
 ## Install as a Home Assistant app
 
-This folder is also a Home Assistant app (`config.yaml`; Home Assistant called these
+This repository is a Home Assistant app repository (Home Assistant called apps
 add-ons before 2026.2), which is how it runs on a Pi with Home Assistant OS. The UI
 opens in the Home Assistant sidebar and Home Assistant handles the login, so the
 app's own password is switched off.
@@ -39,26 +41,30 @@ app's own password is switched off.
 1. In Home Assistant, add the Synology share under **Settings → System → Storage →
    Add network storage**: name `Photos`, usage **Media**, protocol **CIFS**, signing
    in as the `photo-organiser` NAS user. It appears to apps at `/media/Photos`.
-2. Copy this folder to `/addons/photo-organiser`, leaving out `.git`, `data/`,
-   `test-photos/` and `test-data/`. Either:
-   - **Studio Code Server** app: open folder `/addons`, create `photo-organiser`,
-     drag the files in from Windows Explorer; or
-   - **Terminal & SSH** app (SSH port enabled), from Git Bash in this folder:
-
-     ```bash
-     git archive HEAD | ssh root@homeassistant.local "rm -rf /addons/photo-organiser && mkdir -p /addons/photo-organiser && tar -xf - -C /addons/photo-organiser"
-     ```
-
-3. **Settings → Apps → Install app → ⋮ → Check for updates**. Photo Organiser
-   appears under **Local apps**. Install it; Home Assistant builds the image on
-   the Pi, which takes a few minutes the first time.
+2. **Settings → Apps → Install app → ⋮ → Repositories**, add
+   `https://github.com/russgriffiths/photo-organiser`, and close the dialog.
+3. Open **Photo Organiser** in the app store and install it. Home Assistant builds
+   the image on the Pi, which takes a few minutes the first time.
 4. On the **Configuration** tab, set `photos_path` (default `/media/Photos`). For a
    first test, use a folder of copied photos under `/share`, e.g. `/share/photo-test`
    containing `Inbox` and `Organised`.
 5. Start it, tick **Show in sidebar**, and open **Photos**.
 
-To update after changing the code, bump `version` in `config.yaml`, copy the folder
-again, then use **Rebuild** on the app's page.
+To release a change, bump `version` in `photo_organiser/config.yaml` and push to
+`main`. Home Assistant offers the update after its next store refresh, or straight
+away after **⋮ → Check for updates**.
+
+### Testing a change before pushing
+
+Copy the app folder to the Pi as a local app over SSH (the **Terminal & SSH** app
+with its SSH port enabled), from Git Bash in this folder:
+
+```bash
+git archive HEAD:photo_organiser | ssh root@homeassistant.local "rm -rf /addons/photo-organiser && mkdir -p /addons/photo-organiser && tar -xf - -C /addons/photo-organiser"
+ssh root@homeassistant.local "ha store reload && ha apps rebuild local_photo_organiser"
+```
+
+It appears under **Local apps** as a separate app with its own settings and history.
 
 ## Deploy with Docker Compose (without Home Assistant)
 
